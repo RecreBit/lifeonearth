@@ -1,8 +1,13 @@
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.preprocessing import image
+import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
+import logging
+import datetime
+import os
 
 def check_garbage_patch():
+    logging.basicConfig(filename='check-{}.log'.format(datetime.datetime.now().strftime('%Y-%m-%d')), level=logging.INFO)
     # Load the trained model
     model = keras.models.load_model('garbage_classifier.h5')
     directory_path = input("Enter the path to the directory containing the images: ")
@@ -29,18 +34,18 @@ def check_garbage_patch():
 
 def train_AI():
     # Load images from a directory
-    train_dir = "path/to/train/images"
-    val_dir = "path/to/validation/images"
+    train_dir = "C:/Users/Sergio/Downloads/h/JPGs"
+    val_dir = "C:/Users/Sergio/Downloads/h/JPGs"
     train_datagen = ImageDataGenerator(rescale = 1./255,
                                    shear_range = 0.2,
                                    zoom_range = 0.2,
                                    horizontal_flip = True)
     val_datagen = ImageDataGenerator(rescale = 1./255)
-    training_set = train_datagen.flow_from_directory(train_dir,
+    training_set = train_datagen.flow_from_directory("C:/Users/Sergio/Downloads/h/JPGs/garbage/*",
                                                  target_size = (64, 64),
                                                  batch_size = 32,
                                                  class_mode = 'binary')
-    val_set = val_datagen.flow_from_directory(val_dir,
+    val_set = val_datagen.flow_from_directory("C:/Users/Sergio/Downloads/h/JPGs/not_garbage/*",
                                             target_size = (64, 64),
                                             batch_size = 32,
                                             class_mode = 'binary')
@@ -68,14 +73,14 @@ def main():
 
     if prompt == "1":
         # Logging learn action
-        log_file = "learn-" + datetime.now().strftime("%Y-%m-%d") + ".log"
+        log_file = "learn-" + datetime.datetime.now().strftime("%Y-%m-%d") + ".log"
         logging.basicConfig(filename=log_file, level=logging.INFO)
-        logging.info("Training AI started at: " + str(datetime.now()))
+        logging.info("Training AI started at: " + str(datetime.datetime.now()))
         train_AI()
-        logging.info("Training AI completed at: " + str(datetime.now()))
+        logging.info("Training AI completed at: " + str(datetime.datetime.now()))
     elif prompt == "2":
         # Logging check action
-        log_file = "check-" + datetime.now().strftime("%Y-%m-%d") + ".log"
+        log_file = "check-" + datetime.datetime.now().strftime("%Y-%m-%d") + ".log"
         logging.basicConfig(filename=log_file, level=logging.INFO)
         logging.info("Checking for garbage patch started at: " + str(datetime.now()))
         check_garbage_patch()
