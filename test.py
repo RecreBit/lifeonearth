@@ -1,6 +1,9 @@
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
+from PIL import Image
+import scipy
+from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 import logging
 import datetime
@@ -36,22 +39,24 @@ def train_AI():
     # Load images from a directory
     train_dir = "C:/Users/Sergio/Downloads/h/JPGs"
     val_dir = "C:/Users/Sergio/Downloads/h/JPGs"
-    train_datagen = ImageDataGenerator(rescale = 1./255,
-                                   shear_range = 0.2,
-                                   zoom_range = 0.2,
-                                   horizontal_flip = True)
-    val_datagen = ImageDataGenerator(rescale = 1./255)
-    training_set = train_datagen.flow_from_directory("C:/Users/Sergio/Downloads/h/JPGs/garbage/*",
-                                                 target_size = (64, 64),
-                                                 batch_size = 32,
-                                                 class_mode = 'binary')
-    val_set = val_datagen.flow_from_directory("C:/Users/Sergio/Downloads/h/JPGs/not_garbage/*",
-                                            target_size = (64, 64),
-                                            batch_size = 32,
-                                            class_mode = 'binary')
+    train_datagen = ImageDataGenerator(rescale=1./255)
+    val_datagen = ImageDataGenerator(rescale=1./255)
+    
+    training_set = train_datagen.flow_from_directory(
+        'C:/Users/Sergio/Downloads/h/JPGs',
+        target_size=(480,360),
+        color_mode='grayscale',
+        class_mode='binary')
+    
+    val_set = val_datagen.flow_from_directory(
+        'C:/Users/Sergio/Downloads/h/JPGs',
+        target_size=(480,360),
+        color_mode='grayscale',
+        class_mode='binary')
+
     # Create the model
     model = keras.Sequential([
-    keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(64, 64, 3)),
+    keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(480, 360, 1)),
     keras.layers.MaxPooling2D((2, 2)),
     keras.layers.Conv2D(64, (3, 3), activation='relu'),
     keras.layers.MaxPooling2D((2, 2)),
@@ -82,7 +87,7 @@ def main():
         # Logging check action
         log_file = "check-" + datetime.datetime.now().strftime("%Y-%m-%d") + ".log"
         logging.basicConfig(filename=log_file, level=logging.INFO)
-        logging.info("Checking for garbage patch started at: " + str(datetime.now()))
+        logging.info("Checking for garbage patch started at: " + str(datetime.datetime.now()))
         check_garbage_patch()
         logging.info("Checking for garbage patch completed at: " + str(datetime.now()))
     else:
