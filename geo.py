@@ -1,25 +1,32 @@
-from skyfield.api import load
+from skyfield.api import wgs84, load
+from skyfield import api
+from skyfield.framelib import itrs
 import time
 
-# Load the necessary data for astronomical calculations
-data = load('de421.bsp')
-
-# Define the TLE data for the ISS
-line1 = '1 25544U 98067A   20336.01571228  .00001452  00000-0  30374-4 0  9990'
-line2 = '2 25544  51.6431  31.1234 0017142  94.9079  47.5682 15.53916173076329'
-
-# Create the satellite object using the TLE data
-iss = data.satellites[line1, line2]
+ts = load.timescale()
+eph = load('de421.bsp')
+earth, moon = eph['earth'], eph['moon']
 
 while True:
     # Get the current date and time
-    current_time = data.now()
+    t = ts.now()
 
-    # Calculate the position of the ISS at the current date and time
-    position, velocity = iss.at(current_time).position.km
+    # Get the position of the Moon at the current date and time
+    position = moon.at(t)
 
-    # Print the position in the format (x, y, z)
-    print(position)
+    # Get the geocentric latitude, longitude, and distance of the Moon
+    ra, dec, distance = position.radec()
+
+    # Convert the right ascension value from hours to degrees
+    ra = ra._degrees / 15
+
+    print('------------------')
+    # Print the position of the Moon in geographical coordinates
+    print('Right Ascension: {:.4f} degrees'.format(ra))
+    print('Declination: {:.4f} degrees'.format(dec.degrees))
+    print('Distance Moon to Earth: {:.4f} km'.format(distance.km))
+    print('------------------')
+    print('')
 
     # Wait for 30 seconds before recalculating the position
     time.sleep(30)
