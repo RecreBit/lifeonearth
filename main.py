@@ -4,6 +4,7 @@ from skyfield import api
 from skyfield.framelib import itrs
 import datetime
 import sense_hat as sense
+import csv
 import time
 
 # Define variables
@@ -30,10 +31,16 @@ while True:
 
     # Convert the right ascension value from hours to degrees
     ra = ra._degrees / 15
+    ra_formatted = '{:.4f}'.format(ra)
+    dec_formatted = '{:.4f}'.format(dec.degrees)
+
+    header = ['Pressure', 'Humidity', 'Temperature', 'Declination', 'Right Ascension', 'Timestamp']
+    row = [press, humidity, temperature, '{:.4f}'.format(dec.degrees), '{:.4f}'.format(ra), now.strftime("%Y-%m-%d %H:%M:%S")]
+    
+    with open('data.csv', 'a', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(header)
+    writer.writerow(row)
 
     # Wait for 30 seconds before redoing everything
     time.sleep(30)
-    writevar = "Pressure: " + press + " | Humidity: " + humidity + " | Temperature: " + temperature + " | Declination: {:.4f} degrees" +.format(dec.degrees) + " | Right Ascension: {:.4f} degrees" +.format(ra) + " | Timestamp: " + now.strftime("%Y-%m-%d %H:%M:%S") + "\n"
-    with open('data.txt', "a") as f:
-        f.write(writevar)
-      
