@@ -32,8 +32,13 @@ while True:
     # Convert the right ascension value from hours to degrees
     ra = ra._degrees / 15
     writevar = "Pressure: " + str(press) + " | Humidity: " + str(humidity) + " | Temperature: " + str(temperature) + " | Timestamp: " + now.strftime("%Y-%m-%d %H:%M:%S") + "\n"
-    with open('data.txt', "a") as f:
-        f.write(writevar)
+    header = ['Declination', 'Right Ascension', 'Timestamp']
+    row = ['{:.4f}'.format(dec.degrees), '{:.4f}'.format(ra), now.strftime("%Y-%m-%d %H:%M:%S")]
+    writer = csv.writer(f)
+    writer.writerow(header)
+    
+    with open('data.csv', 'a', newline='') as f:
+        writer.writerow(row)
 
     # Wait for 30 seconds before redoing everything
     time.sleep(30)
