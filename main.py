@@ -1,45 +1,61 @@
 # Import modules
-from skyfield.api import wgs84, load
-from skyfield import api
-from skyfield.framelib import itrs
-import datetime
+from orbit import ISS, ephemeris
+from skyfield.api import load
+from datetime import datetime, timedelta
+import csv
 from sense_hat import SenseHat
 import time
 
 # Define variables
-ts = load.timescale()
 sense = SenseHat()
-eph = load('de421.bsp')
-earth, moon = eph['earth'], eph['moon']
+location = ISS.coordinates()
+current = [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+          [0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+          [0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+          [0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+          [0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+          [0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+          [0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+          [0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]]
+
+start_time = datetime.now()
+now_time = datetime.now()
 
 # Run the code
-while True:
-    now = datetime.datetime.now()
-    humidity = sense.get_humidity()
-    press = sense.get_pressure()
-    temperature = sense.get_temperature()
-    timenow = time
     
-    # Get the current date and time
-    t = ts.now()
-
-    # Get the position of the Moon at the current date and time
-    position = moon.at(t)
-
-    # Get the geocentric latitude, longitude, and distance of the Moon
-    ra, dec, distance = position.radec()
-
-    # Convert the right ascension value from hours to degrees
-    ra = ra._degrees / 15
-    writevar = "Pressure: " + str(press) + " | Humidity: " + str(humidity) + " | Temperature: " + str(temperature) + " | Timestamp: " + now.strftime("%Y-%m-%d %H:%M:%S") + "\n"
-    header = ['Declination', 'Right Ascension', 'Timestamp']
-    row = ['{:.4f}'.format(dec.degrees), '{:.4f}'.format(ra), now.strftime("%Y-%m-%d %H:%M:%S")]
+with open('data.csv', 'a', newline='') as f:
     writer = csv.writer(f)
+    header = ['Presion (mbar)','Humedad (%)','Temperatura (ºC)','Latitude (º)', 'Longitude (º)','Elevation (m)','Sunlight (T/F)', 'Timestamp']
     writer.writerow(header)
-    
-    with open('data.csv', 'a', newline='') as f:
+    while (now_time < start_time + timedelta(minutes=2)):
+        for i in range(64):
+            current[i] = [255,0,0]
+            time.sleep(0.05)
+            sense.set_pixels(current)
+        now = datetime.now()
+        humidity = sense.get_humidity()
+        press = sense.get_pressure()
+        temperature = sense.get_temperature()
+        timenow = time
+        for i in range(64):
+            current[i] = [0,255,255]
+            time.sleep(0.05)
+            sense.set_pixels(current)
+        timescale = load.timescale()
+        t = timescale.now()
+
+        hum_final = str(humidity)
+        press_final = str(press)
+        temp_final = str(temperature)
+  
+        row = [str(press_final),str(hum_final),str(temp_final),str(location.latitude),str(location.longitude),str(location.elevation.km),ISS.at(t).is_sunlit(ephemeris),now.strftime("%Y-%m-%d %H:%M:%S")]
         writer.writerow(row)
-
-    # Wait for 30 seconds before redoing everything
-    time.sleep(30)
-
+        for i in range(64):
+            current[i] = [169,255,69]
+            time.sleep(0.05)
+            sense.set_pixels(current)
+        
+        now_time = datetime.now()
+        f.flush()
+        time.sleep(1)
+    f.close()
