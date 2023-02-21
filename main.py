@@ -27,7 +27,7 @@ with open('data.csv', 'a', newline='') as f:
     writer = csv.writer(f)
     header = ['Presion (mbar)','Humedad (%)','Temperatura (ºC)','Latitude (º)', 'Longitude (º)','Elevation (m)','Sunlight (T/F)', 'Timestamp']
     writer.writerow(header)
-    while (now_time < start_time + timedelta(minutes=2)):
+    while (now_time < start_time + timedelta(minutes=170)):
         for i in range(64):
             current[i] = [255,0,0]
             time.sleep(0.05)
